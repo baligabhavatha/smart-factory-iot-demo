@@ -1,10 +1,18 @@
 [
     {
-        "id": "mqtt-data-in",
+        "id": "41f74680af7fb4f2",
+        "type": "tab",
+        "label": "Flow 3",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "2d4cdd8b4cd369b9",
         "type": "mqtt in",
-        "z": "e173976e51757a59",
+        "z": "41f74680af7fb4f2",
         "name": "Sensor Data from ESP32",
-        "topic": "factory/machine01/dht",
+        "topic": "<Add your topic>",
         "qos": "1",
         "datatype": "json",
         "broker": "hivemq-broker",
@@ -15,15 +23,15 @@
         "y": 200,
         "wires": [
             [
-                "parse-sensor",
-                "debug-raw"
+                "223a548b07138e64",
+                "116638677673641b"
             ]
         ]
     },
     {
-        "id": "debug-raw",
+        "id": "116638677673641b",
         "type": "debug",
-        "z": "e173976e51757a59",
+        "z": "41f74680af7fb4f2",
         "name": "Raw MQTT Data",
         "active": true,
         "tosidebar": true,
@@ -34,12 +42,12 @@
         "wires": []
     },
     {
-        "id": "parse-sensor",
+        "id": "223a548b07138e64",
         "type": "function",
-        "z": "e173976e51757a59",
+        "z": "41f74680af7fb4f2",
         "name": "Parse Sensor + Route to Blynk",
-        "func": "const data = msg.payload;\n\nconst temp = data.temperature ?? data.temp ?? null;\nconst hum  = data.humidity    ?? data.hum  ?? null;\n\nif (temp === null || hum === null) {\n  node.warn('Missing temperature or humidity: ' + JSON.stringify(data));\n  return null;\n}\n\nnode.warn('Temp: ' + temp + ' | Hum: ' + hum);\n\nconst tempMsg = { payload: temp, pin: 'V0' };\nconst humMsg  = { payload: hum,  pin: 'V1' };\n\n// ── Temp alert ──────────────────────────────────────────\nlet alertMsg = null;\nif (temp > 35) {\n  alertMsg = {\n    payload: {\n      chatId: global.get('telegramChatId') || '8633869336',\n      type: 'message',\n      content: '⚠️ High Temp Alert: ' + temp + '°C'\n    }\n  };\n}\n\n// ── Humidity alert ──────────────────────────────────────\nlet humAlertMsg = null;\nif (hum > 70) {\n  humAlertMsg = {\n    payload: {\n      chatId: global.get('telegramChatId') || '8633869336',\n      type: 'message',\n      content: '💧 High Humidity Alert: ' + hum + '%'\n    }\n  };\n}\n\nreturn [tempMsg, humMsg, alertMsg, humAlertMsg];\n\n\n\n\n\n// const data = msg.payload;\n\n// // Adjust keys to match your ESP32 JSON keys\n// const temp = data.temperature ?? data.temp ?? null;\n// const hum  = data.humidity    ?? data.hum  ?? null;\n\n// if (temp === null || hum === null) {\n//   node.warn('Missing temperature or humidity: ' + JSON.stringify(data));\n//   return null;\n// }\n\n// node.warn('Temp: ' + temp + ' | Hum: ' + hum);\n\n// // Output 1: temperature → Blynk V0\n// // Output 2: humidity    → Blynk V1\n// // Output 3: Telegram alert if temp > 35\n// const tempMsg = { payload: temp,  pin: 'V0' };\n// const humMsg  = { payload: hum,   pin: 'V1' };\n\n// let alertMsg = null;\n// if (temp > 35) {\n//   alertMsg = {\n//     payload: {\n//       chatId: global.get('telegramChatId') || '8633869336',\n//       type: 'message',\n//       content: '⚠️ High Temp Alert: ' + temp + '°C'\n//     }\n//   };\n// }\n\n// return [tempMsg, humMsg, alertMsg];",
-        "outputs": 4,
+        "func": "const data = msg.payload;\n\nconst temp = data.temperature ?? data.temp ?? null;\nconst hum  = data.humidity    ?? data.hum  ?? null;\n\nif (temp === null || hum === null) {\n  node.warn('Missing temperature or humidity: ' + JSON.stringify(data));\n  return null;\n}\n\nnode.warn('Temp: ' + temp + ' | Hum: ' + hum);\n\nconst tempMsg = { payload: temp, pin: 'V0' };\nconst humMsg  = { payload: hum,  pin: 'V1' };\n\n// ── Temp alert ──────────────────────────────────────────\nlet alertMsg = null;\nif (temp > 35) {\n  alertMsg = {\n    payload: {\n      chatId: global.get('telegramChatId') || '8633869336',\n      type: 'message',\n      content: '⚠️ High Temp Alert: ' + temp + '°C'\n    }\n  };\n}\n\n// ── Humidity alert ──────────────────────────────────────\n//TODO: Add humidity alerting with threshold definition (>70) \n\n return [tempMsg, humMsg, alertMsg] //Add humidity message in return\n // Also change output value in setup tab to 4 once humidity changes are added.",
+        "outputs": 3,
         "timeout": "",
         "noerr": 0,
         "initialize": "",
@@ -49,30 +57,27 @@
         "y": 260,
         "wires": [
             [
-                "blynk-temp",
-                "debug-temp"
+                "69eb7f7c7bdf39a1",
+                "21103587385153ac"
             ],
             [
-                "blynk-hum",
-                "debug-hum"
+                "e11496537c5a096c",
+                "6473270f59c6952c"
             ],
             [
-                "tg-alert"
-            ],
-            [
-                "tg-alert"
+                "c9eae19059d57e2c"
             ]
         ]
     },
     {
-        "id": "blynk-temp",
+        "id": "69eb7f7c7bdf39a1",
         "type": "http request",
-        "z": "e173976e51757a59",
+        "z": "41f74680af7fb4f2",
         "name": "Blynk → V0 (Temperature)",
         "method": "GET",
         "ret": "txt",
         "paytoqs": "ignore",
-        "url": "https://blynk.cloud/external/api/update?token=xJB25oRTR32wQoRv2zId-SRmVJkSduLs&V0={{{payload}}}",
+        "url": "https://blynk.cloud/external/api/update?token=YOUR_TOKEN&V0={{{payload}}}",
         "tls": "",
         "persist": false,
         "proxy": "",
@@ -84,14 +89,14 @@
         "y": 120,
         "wires": [
             [
-                "debug-blynk-temp"
+                "dc039efd3e214b57"
             ]
         ]
     },
     {
-        "id": "debug-blynk-temp",
+        "id": "dc039efd3e214b57",
         "type": "debug",
-        "z": "e173976e51757a59",
+        "z": "41f74680af7fb4f2",
         "name": "Blynk Temp Response",
         "active": true,
         "tosidebar": true,
@@ -106,14 +111,14 @@
         "wires": []
     },
     {
-        "id": "blynk-hum",
+        "id": "e11496537c5a096c",
         "type": "http request",
-        "z": "e173976e51757a59",
+        "z": "41f74680af7fb4f2",
         "name": "Blynk → V1 (Humidity)",
         "method": "GET",
         "ret": "txt",
         "paytoqs": "ignore",
-        "url": "https://blynk.cloud/external/api/update?token=xJB25oRTR32wQoRv2zId-SRmVJkSduLs&V1={{{payload}}}",
+        "url": "https://blynk.cloud/external/api/update?token=YOUR_TOKEN&V1={{{payload}}}",
         "tls": "",
         "persist": false,
         "proxy": "",
@@ -125,71 +130,55 @@
         "y": 260,
         "wires": [
             [
-                "debug-blynk-hum"
+                "3645d38bbcd3b5b6"
             ]
         ]
     },
     {
-        "id": "debug-blynk-hum",
+        "id": "3645d38bbcd3b5b6",
         "type": "debug",
-        "z": "e173976e51757a59",
+        "z": "41f74680af7fb4f2",
         "name": "Blynk Hum Response",
         "active": true,
         "tosidebar": true,
-        "console": true,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 1050,
+        "x": 1040,
         "y": 260,
         "wires": []
     },
     {
-        "id": "debug-temp",
+        "id": "21103587385153ac",
         "type": "debug",
-        "z": "e173976e51757a59",
+        "z": "41f74680af7fb4f2",
         "name": "Temp Value",
         "active": true,
         "tosidebar": true,
-        "console": true,
-        "tostatus": false,
-        "complete": "payload.temp",
-        "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 800,
+        "x": 870,
         "y": 180,
         "wires": []
     },
     {
-        "id": "debug-hum",
+        "id": "6473270f59c6952c",
         "type": "debug",
-        "z": "e173976e51757a59",
+        "z": "41f74680af7fb4f2",
         "name": "Hum Value",
         "active": true,
         "tosidebar": true,
-        "console": true,
-        "tostatus": false,
-        "complete": "payload.hum",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 790,
-        "y": 340,
+        "x": 890,
+        "y": 320,
         "wires": []
     },
     {
-        "id": "tg-alert",
+        "id": "c9eae19059d57e2c",
         "type": "telegram sender",
-        "z": "e173976e51757a59",
+        "z": "41f74680af7fb4f2",
         "name": "Temp/Hum Alert to Telegram",
-        "bot": "4b9ac35be0c2b828",
+        "bot": "",
         "haserroroutput": false,
         "outputs": 1,
-        "x": 760,
-        "y": 420,
+        "x": 860,
+        "y": 400,
         "wires": [
             []
         ]
@@ -203,34 +192,7 @@
         "tls": false
     },
     {
-        "id": "4b9ac35be0c2b828",
-        "type": "telegram bot",
-        "botname": "Factory Monitor Bot",
-        "usernames": "",
-        "chatids": "",
-        "baseapiurl": "",
-        "testenvironment": false,
-        "updatemode": "polling",
-        "pollinterval": 300,
-        "usesocks": false,
-        "sockshost": "",
-        "socksprotocol": "socks5",
-        "socksport": 6667,
-        "socksusername": "anonymous",
-        "sockspassword": "",
-        "bothost": "",
-        "botpath": "",
-        "localbothost": "0.0.0.0",
-        "localbotport": 8443,
-        "publicbotport": 8443,
-        "privatekey": "",
-        "certificate": "",
-        "useselfsignedcertificate": false,
-        "sslterminated": false,
-        "verboselogging": false
-    },
-    {
-        "id": "a56b031f35f58ae2",
+        "id": "55b8dda4ae94687b",
         "type": "global-config",
         "env": [],
         "modules": {
