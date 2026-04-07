@@ -3,11 +3,6 @@
 #include "DHT.h"
 
 // WiFi
-const char* ssid = <Wifi username>;#include <WiFi.h>
-#include <PubSubClient.h>
-#include "DHT.h"
-
-// WiFi
 const char* ssid = <WIFI Username>;
 const char* password = <WIFI Password>;
 
