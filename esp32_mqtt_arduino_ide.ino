@@ -3,8 +3,8 @@
 #include "DHT.h"
 
 // WiFi
-const char* ssid = "IBMGuest";
-const char* password = "Ebay-4-Puppy-9-Line";
+const char* ssid = <Wifi username>;
+const char* password = <wifi password>;
 
 // MQTT
 const char* mqtt_server = "broker.hivemq.com";
