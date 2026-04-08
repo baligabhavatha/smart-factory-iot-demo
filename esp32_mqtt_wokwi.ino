@@ -17,7 +17,7 @@ const char* deviceID   = "MACHINE-01";
 // ── DHT22 ────────────────────────
 #define DHT_PIN  4
 #define DHT_TYPE DHT22
-#define LED_PIN  26    // ← matches your wokwi wiring
+#define LED_PIN  2   // ← matches your wokwi wiring
 
 DHT dht(DHT_PIN, DHT_TYPE);
 WiFiClient wifiClient;
