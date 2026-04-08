@@ -1,150 +1,21 @@
 [
     {
-        "id": "a5487fb35b629d13",
-        "type": "telegram receiver",
-        "z": "ddeb065839e29592",
-        "name": "Receive Commands",
-        "bot": "4b9ac35be0c2b828",
-        "filterCommands": false,
-        "hasinput": false,
-        "inputs": 0,
-        "x": 230,
-        "y": 280,
-        "wires": [
-            [
-                "62a21e4ac5e12650"
-            ],
-            [
-                "debug-tg-raw"
-            ]
-        ]
-    },
-    {
-        "id": "debug-tg-raw",
-        "type": "debug",
-        "z": "ddeb065839e29592",
-        "name": "1. Raw Telegram MSG",
-        "active": true,
-        "tosidebar": true,
-        "complete": "payload",
-        "x": 520,
-        "y": 320,
-        "wires": []
-    },
-    {
-        "id": "62a21e4ac5e12650",
-        "type": "function",
-        "z": "ddeb065839e29592",
-        "name": "Parse Command",
-        "func": "const text = msg.payload.content.trim().toLowerCase();\nconst chatId = msg.payload.chatId;\n\nnode.warn('Received text: [' + text + ']');\n\nglobal.set('telegramChatId', chatId);\n\nif (text === '/led on' || text === '/ledon') {\n  node.warn('Matched LED ON');\n  msg.payload = 'LED_ON';\n  return [msg, null];\n}\nif (text === '/led off' || text === '/ledoff') {\n  node.warn('Matched LED OFF');\n  msg.payload = 'LED_OFF';\n  return [msg, null];\n}\nif (text === '/status') {\n  return [null, {\n    payload: {\n      chatId: chatId, type: 'message',\n      content: '📊 Machine-01 is online. Send /led on or /led off to control the LED.'\n    }\n  }];\n}\n\nnode.warn('No match for: [' + text + ']');\nreturn null;",
-        "outputs": 2,
-        "x": 510,
-        "y": 220,
-        "wires": [
-            [
-                "f55c2cf912daaa62",
-                "debug-after-parse"
-            ],
-            [
-                "358fccf58af57f8b"
-            ]
-        ]
-    },
-    {
-        "id": "debug-after-parse",
-        "type": "debug",
-        "z": "ddeb065839e29592",
-        "name": "2. After Parse (to MQTT)",
-        "active": true,
-        "tosidebar": true,
-        "complete": "payload",
-        "x": 830,
-        "y": 120,
-        "wires": []
-    },
-    {
         "id": "f55c2cf912daaa62",
         "type": "mqtt out",
-        "z": "ddeb065839e29592",
-        "name": "Command to ESP32",
-        "topic": "factory/machine01/cmd",
+        "z": "50bfa94280626f3b",
+        "name": "Command back to ESP32",
+        "topic": "",
         "qos": "1",
         "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
         "broker": "hivemq-broker",
-        "x": 820,
-        "y": 180,
+        "x": 880,
+        "y": 280,
         "wires": []
-    },
-    {
-        "id": "mqtt-status-in",
-        "type": "mqtt in",
-        "z": "ddeb065839e29592",
-        "name": "ESP32 Status",
-        "topic": "factory/machine01/status",
-        "qos": "1",
-        "datatype": "json",
-        "broker": "hivemq-broker",
-        "inputs": 0,
-        "x": 230,
-        "y": 400,
-        "wires": [
-            [
-                "debug-esp32-status"
-            ]
-        ]
-    },
-    {
-        "id": "debug-esp32-status",
-        "type": "debug",
-        "z": "ddeb065839e29592",
-        "name": "3. ESP32 Confirmation",
-        "active": true,
-        "tosidebar": true,
-        "complete": "payload",
-        "x": 520,
-        "y": 400,
-        "wires": []
-    },
-    {
-        "id": "358fccf58af57f8b",
-        "type": "telegram sender",
-        "z": "ddeb065839e29592",
-        "name": "Reply to User",
-        "bot": "4b9ac35be0c2b828",
-        "haserroroutput": false,
-        "outputs": 1,
-        "x": 820,
-        "y": 260,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "4b9ac35be0c2b828",
-        "type": "telegram bot",
-        "botname": "Factory Monitor Bot",
-        "usernames": "",
-        "chatids": "",
-        "baseapiurl": "",
-        "testenvironment": false,
-        "updatemode": "polling",
-        "pollinterval": 300,
-        "usesocks": false,
-        "sockshost": "",
-        "socksprotocol": "socks5",
-        "socksport": 6667,
-        "socksusername": "anonymous",
-        "sockspassword": "",
-        "bothost": "",
-        "botpath": "",
-        "localbothost": "0.0.0.0",
-        "localbotport": 8443,
-        "publicbotport": 8443,
-        "privatekey": "",
-        "certificate": "",
-        "useselfsignedcertificate": false,
-        "sslterminated": false,
-        "verboselogging": false
     },
     {
         "id": "hivemq-broker",
@@ -152,14 +23,26 @@
         "name": "HiveMQ Public",
         "broker": "broker.hivemq.com",
         "port": "1883",
-        "tls": false
-    },
-    {
-        "id": "48a02979076692b5",
-        "type": "global-config",
-        "env": [],
-        "modules": {
-            "node-red-contrib-telegrambot": "17.1.3"
-        }
+        "tls": false,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 15,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
     }
 ]
