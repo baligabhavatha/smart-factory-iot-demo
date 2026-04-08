@@ -10,8 +10,8 @@ const char* password = WIFI password;
 const char* mqtt_server = "broker.hivemq.com";
 
 // Topics
-const char* pub_topic = "esp32/dht11/bhavatha";
-const char* sub_topic = "esp32/led/control";
+const char* pub_topic = "" factory/machine01/dht";
+const char* sub_topic = "factory/machine01/cmd";
 
 // DHT setup
 #define DHTPIN 4
