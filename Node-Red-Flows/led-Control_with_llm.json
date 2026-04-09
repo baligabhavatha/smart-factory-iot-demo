@@ -1,0 +1,180 @@
+[
+    {
+        "id": "9ba695f0fd5c6ac5",
+        "type": "tab",
+        "label": "LED Control - LLM",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "d4b68cf32f4e4aaf",
+        "type": "telegram receiver",
+        "z": "9ba695f0fd5c6ac5",
+        "name": "Factory Monitor Bot",
+        "bot": "",
+        "saveDataDir": "",
+        "filterCommands": false,
+        "hasinput": false,
+        "inputs": 0,
+        "handleallupdates": false,
+        "handleprocessupdates": false,
+        "x": 230,
+        "y": 300,
+        "wires": [
+            [
+                "e7512bec8e73212e"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "e7512bec8e73212e",
+        "type": "function",
+        "z": "9ba695f0fd5c6ac5",
+        "name": "Parse telegram content",
+        "func": "let userText = msg.payload.content;\n\nmsg.headers = {\n    \"Authorization\": \"Bearer YOUR_API_KEY\",\n    \"Content-Type\": \"application/json\"\n};\n\nmsg.payload = {\n    model: \"google/gemma-4-31b-it\",\n    messages: [\n        {\n            role: \"user\",\n            content: `\nExtract intent from this message.\n\nReturn ONLY JSON:\n{\n  \"intent\": \"device_control\",\n  \"device\": \"light\",\n  \"action\": \"on/off\"\n}\n\nMessage: \"${userText}\"\n`\n        }\n    ]\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 300,
+        "wires": [
+            [
+                "6fc64be00b843c19"
+            ]
+        ]
+    },
+    {
+        "id": "8246dfef08b2d34a",
+        "type": "debug",
+        "z": "9ba695f0fd5c6ac5",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1160,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "6fc64be00b843c19",
+        "type": "http request",
+        "z": "9ba695f0fd5c6ac5",
+        "name": "Nvidia HTTP",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://integrate.api.nvidia.com/v1/chat/completions",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "Authorization",
+                "keyValue": "",
+                "valueType": "other",
+                "valueValue": "Bearer <Give your token from Nvidia>"
+            },
+            {
+                "keyType": "Content-Type",
+                "keyValue": "",
+                "valueType": "other",
+                "valueValue": "application/json"
+            }
+        ],
+        "x": 690,
+        "y": 300,
+        "wires": [
+            [
+                "bfa342232541ee30"
+            ]
+        ]
+    },
+    {
+        "id": "bfa342232541ee30",
+        "type": "function",
+        "z": "9ba695f0fd5c6ac5",
+        "name": "Parse Nvidia response",
+        "func": "let response = msg.payload;\n\n// NVIDIA/OpenAI style\nlet content = response.choices[0].message.content;\n\n// Sometimes LLM adds extra text → clean it\nlet jsonStart = content.indexOf(\"{\");\nlet jsonEnd = content.lastIndexOf(\"}\");\n\nlet cleanJson = content.substring(jsonStart, jsonEnd + 1);\n\nlet data = JSON.parse(cleanJson);\n\n// Convert to final command\nif (data.intent === \"device_control\") {\n    if (data.action === \"on\") {\n        msg.payload = \"LED_ON\";\n    } else {\n        msg.payload = \"LED_OFF\";\n    }\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 920,
+        "y": 300,
+        "wires": [
+            [
+                "8246dfef08b2d34a",
+                "45313ed548b67352"
+            ]
+        ]
+    },
+    {
+        "id": "45313ed548b67352",
+        "type": "mqtt out",
+        "z": "9ba695f0fd5c6ac5",
+        "name": "Command to ESP32",
+        "topic": "factory/machine01/cmd/<unique_id>",
+        "qos": "1",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "hivemq-broker",
+        "x": 840,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "hivemq-broker",
+        "type": "mqtt-broker",
+        "name": "HiveMQ Public",
+        "broker": "broker.hivemq.com",
+        "port": "1883",
+        "tls": false,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 15,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "e58c7af64ab5b45c",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-contrib-telegrambot": "17.1.3"
+        }
+    }
+]
