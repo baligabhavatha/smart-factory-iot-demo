@@ -21,8 +21,6 @@ This node collects temperature, humidity, and vibration data (Acceleration + Gyr
 | Sensor | ESP32 Pin | Protocol |
 | :--- | :--- | :--- |
 | **DHT22 Data** | GPIO 4 | One-Wire |
-| **MPU6050 SDA** | GPIO 21 | I2C |
-| **MPU6050 SCL** | GPIO 22 | I2C |
 
 ## Software Setup
 ### Libraries Required
