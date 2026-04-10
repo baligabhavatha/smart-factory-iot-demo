@@ -1,48 +1,26 @@
 [
     {
-        "id": "f55c2cf912daaa62",
-        "type": "mqtt out",
+        "id": "62a21e4ac5e12650",
+        "type": "function",
         "z": "50bfa94280626f3b",
-        "name": "Command back to ESP32",
-        "topic": "",
-        "qos": "1",
-        "retain": "false",
-        "respTopic": "",
-        "contentType": "",
-        "userProps": "",
-        "correl": "",
-        "expiry": "",
-        "broker": "hivemq-broker",
-        "x": 880,
-        "y": 280,
-        "wires": []
-    },
-    {
-        "id": "hivemq-broker",
-        "type": "mqtt-broker",
-        "name": "HiveMQ Public",
-        "broker": "broker.hivemq.com",
-        "port": "1883",
-        "tls": false,
-        "clientid": "",
-        "autoConnect": true,
-        "usetls": false,
-        "protocolVersion": 4,
-        "keepalive": 15,
-        "cleansession": true,
-        "autoUnsubscribe": true,
-        "birthTopic": "",
-        "birthQos": "0",
-        "birthPayload": "",
-        "birthMsg": {},
-        "closeTopic": "",
-        "closePayload": "",
-        "closeMsg": {},
-        "willTopic": "",
-        "willQos": "0",
-        "willPayload": "",
-        "willMsg": {},
-        "userProps": "",
-        "sessionExpiry": ""
+        "name": "Parse Command",
+        "func": "//const text = msg.payload.content.trim().toLowerCase();\nconst chatId = msg.payload.chatId;\n\n//node.warn('Received text: [' + text + ']');\n\nglobal.set('telegramChatId', chatId);\n\n// if (text === '/led on' || text === '/ledon') {\n//   node.warn('Matched LED ON');\n//   msg.payload = 'LED_ON';\n//   return [msg, null];\n// }\nlet text = msg.payload.content.toLowerCase();\n\nif (text.includes(\"on\") || text.includes(\"start\")) {\n    return { payload: \"LED_ON\" };\n}\nif (text.includes(\"off\") || text.includes(\"stop\")) {\n    return { payload: \"LED_OFF\" };\n}\nif (text.includes(\"status\") ) {\n  return [null, {\n    payload: {\n      chatId: chatId, type: 'message',\n      content: '📊 Machine-01 is online. Send /led on or /led off to control the LED.'\n    }\n  }];\n}\n// if (text === '/led off' || text === '/ledoff') {\n//   node.warn('Matched LED OFF');\n//   msg.payload = 'LED_OFF';\n//   return [msg, null];\n// }\n// if (text === '/status') {\n//   return [null, {\n//     payload: {\n//       chatId: chatId, type: 'message',\n//       content: '📊 Machine-01 is online. Send /led on or /led off to control the LED.'\n//     }\n//   }];\n// }\n\nnode.warn('No match for: [' + text + ']');\nreturn null;",
+        "outputs": 2,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 570,
+        "y": 320,
+        "wires": [
+            [
+                "f55c2cf912daaa62",
+                "debug-after-parse"
+            ],
+            [
+                "358fccf58af57f8b"
+            ]
+        ]
     }
 ]
