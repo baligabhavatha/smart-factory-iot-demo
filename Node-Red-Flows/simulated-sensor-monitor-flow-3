@@ -1,0 +1,223 @@
+[
+    {
+        "id": "0504635f826860a7",
+        "type": "tab",
+        "label": "Simulated-esp32-dh22",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "c786731767a7a1d0",
+        "type": "debug",
+        "z": "0504635f826860a7",
+        "name": "Raw MQTT Data",
+        "active": true,
+        "tosidebar": true,
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1010,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "d3ecb7a4d5120d6b",
+        "type": "function",
+        "z": "0504635f826860a7",
+        "name": "Parse Sensor + Route to Blynk",
+        "func": "const data = msg.payload;\n\nconst temp = data.temperature ?? data.temp ?? null;\nconst hum  = data.humidity    ?? data.hum  ?? null;\n\nif (temp === null || hum === null) {\n  node.warn('Missing temperature or humidity: ' + JSON.stringify(data));\n  return null;\n}\n\nnode.warn('Temp: ' + temp + ' | Hum: ' + hum);\n\nconst tempMsg = { payload: temp, pin: 'V0' };\nconst humMsg  = { payload: hum,  pin: 'V1' };\n\n// ── Temp alert ──────────────────────────────────────────\nlet alertMsg = null;\nif (temp > 35) {\n  alertMsg = {\n    payload: {\n      chatId: global.get('telegramChatId') || '5650498567',\n      type: 'message',\n      content: '⚠️ High Temp Alert: ' + temp + '°C'\n    }\n  };\n}\n\n// ── Humidity alert ──────────────────────────────────────\n//TODO: Add humidity alerting with threshold definition (>70) \n\n return [tempMsg, humMsg, alertMsg] //Add humidity message in return\n // Also change output value in setup tab to 4 once humidity changes are added.",
+        "outputs": 3,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1010,
+        "y": 320,
+        "wires": [
+            [
+                "5a488889b0eaddea",
+                "037c7b98601c4604"
+            ],
+            [
+                "150a6aa6f792d92a",
+                "d2495235ab244838"
+            ],
+            [
+                "2a284adea7019075"
+            ]
+        ]
+    },
+    {
+        "id": "5a488889b0eaddea",
+        "type": "http request",
+        "z": "0504635f826860a7",
+        "name": "Blynk → V0 (Temperature)",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://blynk.cloud/external/api/update?token=<YOUR-TOKEN>&V0={{{payload}}}",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1300,
+        "y": 180,
+        "wires": [
+            [
+                "518cc1e0c88a7dae"
+            ]
+        ]
+    },
+    {
+        "id": "518cc1e0c88a7dae",
+        "type": "debug",
+        "z": "0504635f826860a7",
+        "name": "Blynk Temp Response",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1570,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "150a6aa6f792d92a",
+        "type": "http request",
+        "z": "0504635f826860a7",
+        "name": "Blynk → V1 (Humidity)",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://blynk.cloud/external/api/update?token=<YOUR-TOKEN>&V1={{{payload}}}",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1300,
+        "y": 320,
+        "wires": [
+            [
+                "9d2d195deeabac14"
+            ]
+        ]
+    },
+    {
+        "id": "9d2d195deeabac14",
+        "type": "debug",
+        "z": "0504635f826860a7",
+        "name": "Blynk Hum Response",
+        "active": true,
+        "tosidebar": true,
+        "x": 1580,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "037c7b98601c4604",
+        "type": "debug",
+        "z": "0504635f826860a7",
+        "name": "Temp Value",
+        "active": true,
+        "tosidebar": true,
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1410,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "d2495235ab244838",
+        "type": "debug",
+        "z": "0504635f826860a7",
+        "name": "Hum Value",
+        "active": true,
+        "tosidebar": true,
+        "x": 1430,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "2a284adea7019075",
+        "type": "telegram sender",
+        "z": "0504635f826860a7",
+        "name": "Temp/Hum Alert to Telegram",
+        "bot": "",
+        "haserroroutput": false,
+        "outputs": 1,
+        "x": 1400,
+        "y": 460,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "42ad069795e53858",
+        "type": "inject",
+        "z": "0504635f826860a7",
+        "name": "Simulator - DH22",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 510,
+        "y": 180,
+        "wires": [
+            [
+                "0f982c323c285a73"
+            ]
+        ]
+    },
+    {
+        "id": "0f982c323c285a73",
+        "type": "function",
+        "z": "0504635f826860a7",
+        "name": "Simulate Temp & Humidity",
+        "func": "// Generate random values between 1 and 100\nconst temp = Math.floor(Math.random() * 100) + 1;\nconst hum = Math.floor(Math.random() * 100) + 1;\n\n// Create same structure as ESP32 MQTT\nmsg.payload = {\n    temperature: temp,\n    humidity: hum\n};\n\nnode.warn(\"SIMULATED → Temp: \" + temp + \" | Hum: \" + hum);\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 560,
+        "y": 340,
+        "wires": [
+            [
+                "c786731767a7a1d0",
+                "d3ecb7a4d5120d6b"
+            ]
+        ]
+    },
+    {
+        "id": "12b7feef6f0fce53",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-contrib-telegrambot": "17.1.3"
+        }
+    }
+]
