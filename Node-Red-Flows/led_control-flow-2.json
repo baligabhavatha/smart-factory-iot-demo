@@ -1,5 +1,48 @@
 [
     {
+        "id": "50bfa94280626f3b",
+        "type": "tab",
+        "label": "Flow 8",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "a5487fb35b629d13",
+        "type": "telegram receiver",
+        "z": "50bfa94280626f3b",
+        "name": "Receive Commands",
+        "bot": "",
+        "saveDataDir": "",
+        "filterCommands": false,
+        "hasinput": false,
+        "inputs": 0,
+        "handleallupdates": false,
+        "handleprocessupdates": false,
+        "x": 290,
+        "y": 380,
+        "wires": [
+            [
+                "62a21e4ac5e12650"
+            ],
+            [
+                "debug-tg-raw"
+            ]
+        ]
+    },
+    {
+        "id": "debug-tg-raw",
+        "type": "debug",
+        "z": "50bfa94280626f3b",
+        "name": "1. Raw Telegram MSG",
+        "active": true,
+        "tosidebar": true,
+        "complete": "payload",
+        "x": 580,
+        "y": 420,
+        "wires": []
+    },
+    {
         "id": "62a21e4ac5e12650",
         "type": "function",
         "z": "50bfa94280626f3b",
@@ -22,5 +65,119 @@
                 "358fccf58af57f8b"
             ]
         ]
+    },
+    {
+        "id": "debug-after-parse",
+        "type": "debug",
+        "z": "50bfa94280626f3b",
+        "name": "2. After Parse (to MQTT)",
+        "active": true,
+        "tosidebar": true,
+        "complete": "payload",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 890,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "f55c2cf912daaa62",
+        "type": "mqtt out",
+        "z": "50bfa94280626f3b",
+        "name": "Command to ESP32",
+        "topic": "",
+        "qos": "1",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "hivemq-broker",
+        "x": 880,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "mqtt-status-in",
+        "type": "mqtt in",
+        "z": "50bfa94280626f3b",
+        "name": "ESP32 Status",
+        "topic": "",
+        "qos": "1",
+        "datatype": "json",
+        "broker": "hivemq-broker",
+        "nl": false,
+        "rap": false,
+        "inputs": 0,
+        "x": 290,
+        "y": 500,
+        "wires": [
+            [
+                "debug-esp32-status"
+            ]
+        ]
+    },
+    {
+        "id": "debug-esp32-status",
+        "type": "debug",
+        "z": "50bfa94280626f3b",
+        "name": "3. ESP32 Confirmation",
+        "active": true,
+        "tosidebar": true,
+        "complete": "payload",
+        "x": 580,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "358fccf58af57f8b",
+        "type": "telegram sender",
+        "z": "50bfa94280626f3b",
+        "name": "Reply to User",
+        "bot": "",
+        "haserroroutput": false,
+        "outputs": 1,
+        "x": 880,
+        "y": 360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "hivemq-broker",
+        "type": "mqtt-broker",
+        "name": "HiveMQ Public",
+        "broker": "broker.hivemq.com",
+        "port": "1883",
+        "tls": false,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 15,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "2a0c1b4f29aebee5",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-contrib-telegrambot": "17.1.3"
+        }
     }
 ]
